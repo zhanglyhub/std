@@ -88,5 +88,7 @@ else s1[++pos]=s[y],idx[y+n]=pos,y--;ok=!ok;}s1[++pos]=s[y];string s2="#";
 for(x=1;x<=pos;x++){s2.push_back(s1[x]);s2.push_back('#');}
 int len=s2.size();int mx=0,id=0;for(x=0;x<len;x++){
 if(x<mx)p[x]=min(mx-x,p[(id<<1)-x]);else p[x]=1;while(s2[x+p[x]]==s2[x-p[x]])
-p[x]++;if(x+p[x]-1>mx){mx=x+p[x]-1;id=x;}}for(x=2;x<len;x+=4){ans+=p[x]-1>>1;}
-ans+=k>>1;printf("%d\n",ans);}return 0;}
+p[x]++;if(x+p[x]-1>mx){mx=x+p[x]-1;id=x;}}ans+=k>>=1;
+for(x=1;x<k>>1;x++)ans+=p[x<<2]>>2;for(x=1;x<k>>1;x++){
+ans+=p[(x<<2)-2]+2>>2;}printf("%d\n",ans);}return 0;}
+//如何统计以t_i为右端点的偶回文？
