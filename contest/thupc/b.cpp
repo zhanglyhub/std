@@ -82,13 +82,15 @@ int main(){
 int i,j,k,x,y,z,T,q,c,m,n;
 ios::sync_with_stdio(0),cin.tie(0);
 cin>>n>>q>>(s+1);for(i=1;i<=q;i++){
-cin>>k;int l=1,r=k-1;static char s1[N];int ok=1,pos=0,ans=0;
+cin>>k;int l=max(1,k-n),r=min(n,k-1);static char s1[N];
+for(x=0;x<=n<<4;x++)s1[x]=0;int ok=1,pos=0,ans=0;
 for(x=l,y=r;x<=r&&y>=l;){if(ok)s1[++pos]=s[x],idx[x]=pos,x++;
-else s1[++pos]=s[y],idx[y+n]=pos,y--;ok=!ok;}s1[++pos]=s[y];string s2="#";
-for(x=1;x<=pos;x++){s2.push_back(s1[x]);s2.push_back('#');}
+else s1[++pos]=s[y],y--;ok=!ok;}s1[++pos]=s[y];string s2="#";
+for(x=1;x<=pos;x++){s2.push_back(s1[x]);s2.push_back('#');}//cerr<<s2<<endl;
 int len=s2.size();int mx=0,id=0;for(x=0;x<len;x++){
 if(x<mx)p[x]=min(mx-x,p[(id<<1)-x]);else p[x]=1;while(s2[x+p[x]]==s2[x-p[x]])
-p[x]++;if(x+p[x]-1>mx){mx=x+p[x]-1;id=x;}}ans+=k>>=1;
-for(x=1;x<k>>1;x++)ans+=p[x<<2]>>2;for(x=1;x<k>>1;x++){
-ans+=p[(x<<2)-2]+2>>2;}printf("%d\n",ans);}return 0;}
-//如何统计以t_i为右端点的偶回文？
+p[x]++;if(x+p[x]-1>mx){mx=x+p[x]-1;id=x;}}y=k;k>>=1;ans+=c=min(k,y&1?n-k:n-k+1);
+for(x=1;x<c;x++)ans+=p[x*4]/4; 
+for(x=1;x<c;x++)j=x*4-2,ans+=(p[j]+2)/4;
+printf("%d\n",ans);for(x=0;x<=len<<1;x++)p[x]=0;}return 0;}
+// stststst tstststst
