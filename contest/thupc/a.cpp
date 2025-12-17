@@ -121,40 +121,30 @@ int t=log(n)/log(2)+1;int y;for(y=1;y<t;y++){for(x=1;x<=n-(1<<y)+1;x++)
 f[x][y]=mn(f[x][y-1],f[x+(1<<y-1)][y-1]);}}
 int ask(int a,int b){if(a==b)return a;if(dfn[a]>dfn[b])swap(a,b);a=dfn[a]+1;b=dfn[b];
 int k=__lg(b-a+1);return fa[mn(f[a][k],f[b-(1<<k)+1][k])];}
-void upd(int p,int l,int r,int ql,int qr,int u,int id){if(ql<=l&&r<=qr){t[p].push_back(mkp(u,id));return;}
+void upd(int p,int l,int r,int ql,int qr,int u,int id){if(ql<=l&&r<=qr){t[p].emplace_back(mkp(u,id));return;}
 int mid=l+r>>1;if(ql<=mid)upd(p<<1,l,mid,ql,qr,u,id);if(qr>mid)upd(p<<1|1,mid+1,r,ql,qr,u,id);}
-void ad(int x,int y){g[x].push_back(y);}
-void build(vt&val){static int s[N];int p=0,x;s[++p]=1;
-for(auto x:val){if(x==1)continue;int lk=ask(x,s[p]);
-if(lk==s[p])ad(lk,x),s[p--],s[++p]=x;else{while(p-1&&s[p-1]!=lk)p--;ad(s[p-1],s[p]);
-ad(s[p],x);s[p--];s[++p]=x;}while(p-1)ad(s[p],s[p-1]),p--;s[++p]=x;}}
+void ad(int x,int y){g[x].emplace_back(y);}
+void build(vt&val){static int s[N];int p;s[++p]=1;for(auto x:val){if(x==1)continue;int lk=ask(s[p],x);
+if(lk!=s[p]){while(p-1&&dept[s[p-1]]>dept[x])ad(s[p-1],x),p--;
+if(dept[s[p-1]]<dept[lk])ad(s[p-1],lk),s[p--],s[++p]=lk;else ad(lk,s[p]),p--;}s[++p]=x;}}
 void dfs1(int x,int pa){ck[x]=(mk[x>>6]>>(x&63))&1ull;for(auto y:g[x])
 {if(y==pa)continue;ck[x]|=ck[y];dfs1(y,pa);}}
 void dfs2(int x,int pa,int bst){int bst1=bst;if(ck[x]){bst1=max(bst1,max(bst,x));}mx[x]=bst1;
 for(auto y:g[x]){if(y==pa)continue;dfs2(y,x,bst1);}}
 void solve(int p,int l,int r,const vt&vec){if(!vec.empty()&&!t[p].empty()){vt list;
-static int mk1[N];int x,y;for(x=l;x<=r;x++)mk[a[x]>>6]|=1ull<<(a[x]&63);for(x=l;x<=r;x++){
-for(y=0;y<=t[p].size()-1;y++){if((mk1[t[p][y].first>>6]>>(t[p][y].first&63))&1ull)continue;    
-if(dfn[a[x]]>dfn[t[p][y].first])list.emplace_back(t[p][y].first),mk1[t[p][y].first>>6]|=1ull<<(t[p][y].first&63);}
-if((mk1[a[x]>>6]>>(a[x]&63))&1ull)continue;mk1[a[x]>>6]|=1ull<<(a[x]&63);list.emplace_back(a[x]);}
-while(x<=r)if(!((mk1[a[x]>>6]>>(a[x]&63))&1))list.emplace_back(a[x++]);
-while(y<=t[p].size()-1)if(!((mk1[t[p][y].first>>6]>>(t[p][y].first&63))&1))list.emplace_back(t[p][y++].first);
-list.erase(unique(all(list)),list.end());build(list);//这里dfn顺序不对，如果排序的话复杂度会炸，考虑到vec有序，似乎可以归并？
-        cerr<<"$"<<p<<endl;
-        for(x=l;x<=r;x++){for(auto e:g[x])cerr<<x<<' '<<e<<' ';cerr<<endl;}
-        dfs1(1,0);dfs2(1,0,0);
-        
-        for(auto y:t[p]){
-            
-            ans[y.second]=max(ans[y.second],mx[y.first]);
-
-        for(x=l;x<=r;x++)
-        
-        mk[a[x]>>6]&=~(1ull<<(a[x]&63)),g[a[x]].clear();
-    }
-}
-if(l==r)return;int mid=l+r>>1;vt lidx,ridx;for(auto x:vec){if(x<=mid)lidx.push_back(x);
-else ridx.push_back(x);}solve(p<<1,l,mid,lidx);solve(p<<1|1,mid+1,r,ridx);} 
+static ui64 mk1[(N>>6)+5];int x=0,y=0;for(auto v:vec)mk[a[v]>>6]|=1ull<<(a[v]&63);
+while(x<=(int)vec.size()-1&&y<=(int)t[p].size()-1){
+if(dfn[a[vec[x]]]<dfn[t[p][y].first]){if(!((mk1[a[vec[x]]>>6]>>(a[vec[x]]&63))&1ull)){
+mk1[a[vec[x]]>>6]|=1ull<<(a[vec[x]]&63);list.emplace_back(a[vec[x]]);}x++;}
+else{if(!((mk1[t[p][y].first>>6]>>(t[p][y].first&63))&1ull)){
+mk1[t[p][y].first>>6]|=1ull<<(t[p][y].first&63);list.emplace_back(t[p][y].first);}y++;}}
+while(x<=(int)vec.size()-1){if(!((mk1[a[vec[x]]>>6]>>(a[vec[x]]&63))&1ull))list.emplace_back(a[vec[x]]);x++;}
+while(y<=(int)t[p].size()-1){if(!((mk1[t[p][y].first>>6]>>(t[p][y].first&63))&1ull))list.emplace_back(t[p][y].first);y++;}
+list.erase(unique(all(list)),list.end());build(list);//这里dfn顺序不对，如果排序的话复杂度会炸，考虑到vec有序，似乎可以归并？       
+dfs1(1,0);dfs2(1,0,0);for(auto y:t[p]){ans[y.second]=max(ans[y.second],mx[y.first]);for(x=l;x<=r;x++)
+mk[a[x]>>6]&=~(1ull<<(a[x]&63)),g[a[x]].clear();}}
+if(l==r)return;int mid=l+r>>1;vt lidx,ridx;for(auto x:vec){if(x<=mid)lidx.emplace_back(x);
+else ridx.emplace_back(x);}solve(p<<1,l,mid,lidx);solve(p<<1|1,mid+1,r,ridx);} 
 int main(){
 int i,j,k,x,y,z,T,q,c,m,n;
 ios::sync_with_stdio(0),cin.tie(0);
