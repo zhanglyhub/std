@@ -5,7 +5,7 @@ void add(int x,int y){to[++tot]=y;nxt[tot]=h[x];h[x]=tot;}
 void dfs(int x,int pa,int d){dfn[x]=++timer;seq[timer]=x;dept[x]=d;fa[x]=pa;
 for(int v=h[x];v;v=nxt[v]){int y=to[v];if(y==pa)continue;dfs(y,x,d+1);}}
 void lca(int n){dfs(1,-1,0);int x;for(x=1;x<=n;x++)f[x][0]=seq[x];
-int t=log(n)/log(2)+1;int y;for(y=1;y<t;y++){for(x=1;x<=n-(1<<y)+1;x++)
+int t=__lg(n)+1;int y;for(y=1;y<t;y++){for(x=1;x<=n-(1<<y)+1;x++)
 f[x][y]=mn(f[x][y-1],f[x+(1<<y-1)][y-1]);}}
 int ask(int a,int b){if(a==b)return a;if(dfn[a]>dfn[b])swap(a,b);a=dfn[a]+1;b=dfn[b];
 int k=__lg(b-a+1);return fa[mn(f[a][k],f[b-(1<<k)+1][k])];}
