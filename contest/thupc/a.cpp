@@ -1,53 +1,53 @@
 #include<bits/stdc++.h>
 #define fs(x) fixed<<setprecision(x)
-#pragma GCC diagnostic error "-std=c++11"
-#pragma GCC target("avx")
-#pragma GCC optimize(3)
-#pragma GCC optimize("Ofast")
-#pragma GCC optimize("inline")
-#pragma GCC optimize("-fgcse")
-#pragma GCC optimize("-fgcse-lm")
-#pragma GCC optimize("-fipa-sra")
-#pragma GCC optimize("-ftree-pre")
-#pragma GCC optimize("-ftree-vrp")
-#pragma GCC optimize("-fpeephole2")
-#pragma GCC optimize("-ffast-math")
-#pragma GCC optimize("-fsched-spec")
-#pragma GCC optimize("unroll-loops")
-#pragma GCC optimize("-falign-jumps")
-#pragma GCC optimize("-falign-loops")
-#pragma GCC optimize("-falign-labels")
-#pragma GCC optimize("-fdevirtualize")
-#pragma GCC optimize("-fcaller-saves")
-#pragma GCC optimize("-fcrossjumping")
-#pragma GCC optimize("-fthread-jumps")
-#pragma GCC optimize("-funroll-loops")
-#pragma GCC optimize("-fwhole-program")
-#pragma GCC optimize("-freorder-blocks")
-#pragma GCC optimize("-fschedule-insns")
-#pragma GCC optimize("inline-functions")
-#pragma GCC optimize("-ftree-tail-merge")
-#pragma GCC optimize("-fschedule-insns2")
-#pragma GCC optimize("-fstrict-aliasing")
-#pragma GCC optimize("-fstrict-overflow")
-#pragma GCC optimize("-falign-functions")
-#pragma GCC optimize("-fcse-skip-blocks")
-#pragma GCC optimize("-fcse-follow-jumps")
-#pragma GCC optimize("-fsched-interblock")
-#pragma GCC optimize("-fpartial-inlining")
-#pragma GCC optimize("no-stack-protector")
-#pragma GCC optimize("-freorder-functions")
-#pragma GCC optimize("-findirect-inlining")
-#pragma GCC optimize("-fhoist-adjacent-loads")
-#pragma GCC optimize("-frerun-cse-after-loop")
-#pragma GCC optimize("inline-small-functions")
-#pragma GCC optimize("-finline-small-functions")
-#pragma GCC optimize("-ftree-switch-conversion")
-#pragma GCC optimize("-foptimize-sibling-calls")
-#pragma GCC optimize("-fexpensive-optimizations")
-#pragma GCC optimize("-funsafe-loop-optimizations")
-#pragma GCC optimize("inline-functions-called-once")
-#pragma GCC optimize("-fdelete-null-pointer-checks")
+// #pragma GCC diagnostic error "-std=c++11"
+// #pragma GCC target("avx")
+// #pragma GCC optimize(3)
+// #pragma GCC optimize("Ofast")
+// #pragma GCC optimize("inline")
+// #pragma GCC optimize("-fgcse")
+// #pragma GCC optimize("-fgcse-lm")
+// #pragma GCC optimize("-fipa-sra")
+// #pragma GCC optimize("-ftree-pre")
+// #pragma GCC optimize("-ftree-vrp")
+// #pragma GCC optimize("-fpeephole2")
+// #pragma GCC optimize("-ffast-math")
+// #pragma GCC optimize("-fsched-spec")
+// #pragma GCC optimize("unroll-loops")
+// #pragma GCC optimize("-falign-jumps")
+// #pragma GCC optimize("-falign-loops")
+// #pragma GCC optimize("-falign-labels")
+// #pragma GCC optimize("-fdevirtualize")
+// #pragma GCC optimize("-fcaller-saves")
+// #pragma GCC optimize("-fcrossjumping")
+// #pragma GCC optimize("-fthread-jumps")
+// #pragma GCC optimize("-funroll-loops")
+// #pragma GCC optimize("-fwhole-program")
+// #pragma GCC optimize("-freorder-blocks")
+// #pragma GCC optimize("-fschedule-insns")
+// #pragma GCC optimize("inline-functions")
+// #pragma GCC optimize("-ftree-tail-merge")
+// #pragma GCC optimize("-fschedule-insns2")
+// #pragma GCC optimize("-fstrict-aliasing")
+// #pragma GCC optimize("-fstrict-overflow")
+// #pragma GCC optimize("-falign-functions")
+// #pragma GCC optimize("-fcse-skip-blocks")
+// #pragma GCC optimize("-fcse-follow-jumps")
+// #pragma GCC optimize("-fsched-interblock")
+// #pragma GCC optimize("-fpartial-inlining")
+// #pragma GCC optimize("no-stack-protector")
+// #pragma GCC optimize("-freorder-functions")
+// #pragma GCC optimize("-findirect-inlining")
+// #pragma GCC optimize("-fhoist-adjacent-loads")
+// #pragma GCC optimize("-frerun-cse-after-loop")
+// #pragma GCC optimize("inline-small-functions")
+// #pragma GCC optimize("-finline-small-functions")
+// #pragma GCC optimize("-ftree-switch-conversion")
+// #pragma GCC optimize("-foptimize-sibling-calls")
+// #pragma GCC optimize("-fexpensive-optimizations")
+// #pragma GCC optimize("-funsafe-loop-optimizations")
+// #pragma GCC optimize("inline-functions-called-once")
+// #pragma GCC optimize("-fdelete-null-pointer-checks")
 #define N (1<<21)+100
 #define mkp make_pair
 #define cln cerr<<" "<<'\n'
@@ -126,20 +126,22 @@ t[p].emplace_back(mkp(u,id));return;}int mid=l+r>>1;if(ql<=mid)upd(p<<1,l,mid,ql
 if(qr>mid)upd(p<<1|1,mid+1,r,ql,qr,u,id);}void ad(int x,int y){g[x].emplace_back(y);}
 void build(vt&val){static int s[N];int p=0;s[++p]=1;for(auto x:val){if(x==1)continue;int lk=ask(s[p],x);
 if(lk!=s[p]){while(p-1&&dept[s[p-1]]>dept[lk])ad(s[p-1],s[p]),p--;
-if(dept[s[p-1]]<dept[lk])ad(lk,s[p-1]),s[p]=lk;else ad(lk,s[p--]);}s[++p]=x;}
+if(dept[s[p-1]]<dept[lk])ad(lk,s[p]),s[p]=lk;else ad(lk,s[p--]);}s[++p]=x;}
 while(p-1)ad(s[p-1],s[p]),p--;}
-void dfs1(int x,int pa){ck[x]=(mk[x>>6]>>(x&63))&1ull;for(auto y:g[x])
-{if(y==pa)continue;ck[x]|=ck[y];dfs1(y,x);}}
-void dfs2(int x,int pa,int bst){int bst1=bst;if(ck[x]){bst1=max(bst1,max(bst,x));}
+void dfs1(int x,int pa){for(auto y:g[x]){if(y==pa)continue;dfs1(y,x);mk[x]|=mk[y];}}
+void dfs2(int x,int pa,int bst){int bst1=bst;if(mk[x]){bst1=max(bst1,max(bst,x));}
 mx[x]=bst1;for(auto y:g[x]){if(y==pa)continue;dfs2(y,x,bst1);}}
-void solve(int p,int l,int r,const vt&vec){if(!vec.empty()&&!t[p].empty()){
+void solve(int p,int l,int r,const vt&vec,const int&n){if(!vec.empty()&&!t[p].empty()){
+int x,y;for(x=0;x<=t[p].size()-1;x++)mk[t[p][x].first]=1;
 vt la,lb,lc;for(auto x:vec)la.emplace_back(a[x]);for(auto x:t[p])lb.emplace_back(x.first);
 vt list(int(la.size()+lb.size()));merge(all(la),all(lb),list.begin(),[](int x,int y){return dfn[x]<dfn[y];});
-list.erase(unique(all(list)),list.end());build(list);int x,y;
+list.erase(unique(all(list)),list.end());build(list);
+cerr<<p<<' '<<t[p].size()<<":"<<endl;for(auto x:t[p])cerr<<x.first<<' ';cerr<<endl;
+for(auto x:t[p])cerr<<x.second<<' ';cerr<<endl;
 dfs1(1,0);dfs2(1,0,0);for(auto y:t[p]){ans[y.second]=max(ans[y.second],mx[y.first]);}
-for(x=0;x<=(int)vec.size()-1;x++)mk[a[vec[x]]>>6]&=~(1ull<<(a[vec[x]]&63)),g[a[vec[x]]].clear();}
+for(x=0;x<=n;x++)g[x].clear(),mk[x]=0;for(x=0;x<=t[p].size()-1;x++)mk[t[p][x].first]=0;}
 if(l==r)return;int mid=l+r>>1;vt lidx,ridx;for(auto x:vec){if(x<=mid)lidx.emplace_back(x);
-else ridx.emplace_back(x);}solve(p<<1,l,mid,lidx);solve(p<<1|1,mid+1,r,ridx);} 
+else ridx.emplace_back(x);}solve(p<<1,l,mid,lidx,n);solve(p<<1|1,mid+1,r,ridx,n);} 
 int main(){
 int i,j,k,x,y,z,T,q,c,m,n;
 ios::sync_with_stdio(0),cin.tie(0);
@@ -147,13 +149,107 @@ cin>>n>>m>>q;vt idx(m);for(x=1;x<n;x++){int u,v,w;cin>>u>>v;add(u,v);add(v,u);}
 for(x=1;x<=m;x++)cin>>a[x];lca(n);for(x=0;x<m;x++){idx[x]=x+1;}
 sort(all(idx),[&](int x,int y){return dfn[a[x]]<dfn[a[y]];});
 for(x=1;x<=q;x++){cin>>ql[x]>>qr[x]>>u[x];upd(1,1,n,ql[x],qr[x],u[x],x);}
-solve(1,1,m,idx);for(x=1;x<=q;x++)printf("%d\n",ans[x]);return 0;}
-// error:
-// 1:
+solve(1,1,m,idx,n);
+for(x=1;x<=q;x++)printf("%d\n",ans[x]);return 0;}
+// contect: ceng 
+// 1 1:
 // 1 5 2 3 4 7 6 8 10
-// 2:
+// 2 1:
 // 2 3 4 6 8 10
-// 4:
+// 4 2:
 // 2 6 8 10
-// 8:
+// 8 1:
 // 6 8 10
+// 16 3:
+// 5 9 10
+// 17 1:
+// 8 10
+// 9 1:
+// 6 10
+// 5 1:
+// 2 3 4 10
+// 10 1:
+// 3 4 8
+// 11 5:
+// 1 2 3 5
+// 3 2:
+// 1 5 4 7 6 8 10
+// 6 1:
+// 1 5 7
+// 12 1:
+// 5 3 7
+// 24 2:
+// 5 2 5
+// 25 1:
+// 7
+// 13 2:
+// 1 4 7
+// 7 3:
+// 4 7 9 6
+// 14 1:
+// 4 7 6
+// real 0.03
+// user 0.01
+// sys 0.02
+// mem 102240 KB
+
+
+
+// 1 1:
+// 1
+// 2
+// 2 1:
+// 4
+// 8
+// 4 2:
+// 2 8
+// 4 15
+// 8 1:
+// 6
+// 12
+// 16 3:
+// 5 9 10
+// 9 17 20
+// 17 1:
+// 10
+// 19
+// 9 1:
+// 10
+// 19
+// 5 1:
+// 10
+// 19
+// 10 1:
+// 8
+// 15
+// 11 5:
+// 1 2 3 3 5
+// 1 3 5 6 10
+// 3 2:
+// 8 10
+// 16 19
+// 6 1:
+// 1
+// 1
+// 12 1:
+// 3
+// 6
+// 24 2:
+// 2 5
+// 3 10
+// 25 1:
+// 7
+// 14
+// 13 2:
+// 4 7
+// 7 14
+// 7 3:
+// 4 7 9
+// 7 13 18
+// 14 1:
+// 7
+// 14
+// real 0.05
+// user 0.01
+// sys 0.01
+// mem 102080 KB
