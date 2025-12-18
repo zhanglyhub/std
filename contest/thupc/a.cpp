@@ -117,32 +117,27 @@ void add(int x,int y){to[++tot]=y;nxt[tot]=h[x];h[x]=tot;}
 void dfs(int x,int pa,int d){dfn[x]=++timer;seq[timer]=x;dept[x]=d;fa[x]=pa;
 for(int v=h[x];v;v=nxt[v]){int y=to[v];if(y==pa)continue;dfs(y,x,d+1);}}
 void lca(int n){dfs(1,-1,0);int x;for(x=1;x<=n;x++)f[x][0]=seq[x];
-int t=log(n)/log(2)+1;int y;for(y=1;y<t;y++){for(x=1;x<=n-(1<<y)+1;x++)
+int t=__lg(n)+1;int y;for(y=1;y<t;y++){for(x=1;x<=n-(1<<y)+1;x++)
 f[x][y]=mn(f[x][y-1],f[x+(1<<y-1)][y-1]);}}
 int ask(int a,int b){if(a==b)return a;if(dfn[a]>dfn[b])swap(a,b);a=dfn[a]+1;b=dfn[b];
 int k=__lg(b-a+1);return fa[mn(f[a][k],f[b-(1<<k)+1][k])];}
-void upd(int p,int l,int r,int ql,int qr,int u,int id){if(ql<=l&&r<=qr){t[p].emplace_back(mkp(u,id));return;}
-int mid=l+r>>1;if(ql<=mid)upd(p<<1,l,mid,ql,qr,u,id);if(qr>mid)upd(p<<1|1,mid+1,r,ql,qr,u,id);}
-void ad(int x,int y){g[x].emplace_back(y);}
-void build(vt&val){static int s[N];int p;s[++p]=1;for(auto x:val){if(x==1)continue;int lk=ask(s[p],x);
-if(lk!=s[p]){while(p-1&&dept[s[p-1]]>dept[x])ad(s[p-1],x),p--;
-if(dept[s[p-1]]<dept[lk])ad(s[p-1],lk),s[p--],s[++p]=lk;else ad(lk,s[p]),p--;}s[++p]=x;}}
+void upd(int p,int l,int r,int ql,int qr,int u,int id){if(ql<=l&&r<=qr){
+t[p].emplace_back(mkp(u,id));return;}int mid=l+r>>1;if(ql<=mid)upd(p<<1,l,mid,ql,qr,u,id);
+if(qr>mid)upd(p<<1|1,mid+1,r,ql,qr,u,id);}void ad(int x,int y){g[x].emplace_back(y);}
+void build(vt&val){static int s[N];int p=0;s[++p]=1;for(auto x:val){if(x==1)continue;int lk=ask(s[p],x);
+if(lk!=s[p]){while(p-1&&dept[s[p-1]]>dept[lk])ad(s[p-1],s[p]),p--;
+if(dept[s[p-1]]<dept[lk])ad(lk,s[p-1]),s[p]=lk;else ad(lk,s[p--]);}s[++p]=x;}
+while(p-1)ad(s[p-1],s[p]),p--;}
 void dfs1(int x,int pa){ck[x]=(mk[x>>6]>>(x&63))&1ull;for(auto y:g[x])
-{if(y==pa)continue;ck[x]|=ck[y];dfs1(y,pa);}}
-void dfs2(int x,int pa,int bst){int bst1=bst;if(ck[x]){bst1=max(bst1,max(bst,x));}mx[x]=bst1;
-for(auto y:g[x]){if(y==pa)continue;dfs2(y,x,bst1);}}
-void solve(int p,int l,int r,const vt&vec){if(!vec.empty()&&!t[p].empty()){vt list;
-static ui64 mk1[(N>>6)+5];int x=0,y=0;for(auto v:vec)mk[a[v]>>6]|=1ull<<(a[v]&63);
-while(x<=(int)vec.size()-1&&y<=(int)t[p].size()-1){
-if(dfn[a[vec[x]]]<dfn[t[p][y].first]){if(!((mk1[a[vec[x]]>>6]>>(a[vec[x]]&63))&1ull)){
-mk1[a[vec[x]]>>6]|=1ull<<(a[vec[x]]&63);list.emplace_back(a[vec[x]]);}x++;}
-else{if(!((mk1[t[p][y].first>>6]>>(t[p][y].first&63))&1ull)){
-mk1[t[p][y].first>>6]|=1ull<<(t[p][y].first&63);list.emplace_back(t[p][y].first);}y++;}}
-while(x<=(int)vec.size()-1){if(!((mk1[a[vec[x]]>>6]>>(a[vec[x]]&63))&1ull))list.emplace_back(a[vec[x]]);x++;}
-while(y<=(int)t[p].size()-1){if(!((mk1[t[p][y].first>>6]>>(t[p][y].first&63))&1ull))list.emplace_back(t[p][y].first);y++;}
-list.erase(unique(all(list)),list.end());build(list);//这里dfn顺序不对，如果排序的话复杂度会炸，考虑到vec有序，似乎可以归并？       
-dfs1(1,0);dfs2(1,0,0);for(auto y:t[p]){ans[y.second]=max(ans[y.second],mx[y.first]);for(x=l;x<=r;x++)
-mk[a[x]>>6]&=~(1ull<<(a[x]&63)),g[a[x]].clear();}}
+{if(y==pa)continue;ck[x]|=ck[y];dfs1(y,x);}}
+void dfs2(int x,int pa,int bst){int bst1=bst;if(ck[x]){bst1=max(bst1,max(bst,x));}
+mx[x]=bst1;for(auto y:g[x]){if(y==pa)continue;dfs2(y,x,bst1);}}
+void solve(int p,int l,int r,const vt&vec){if(!vec.empty()&&!t[p].empty()){
+vt la,lb,lc;for(auto x:vec)la.emplace_back(a[x]);for(auto x:t[p])lb.emplace_back(x.first);
+vt list(int(la.size()+lb.size()));merge(all(la),all(lb),list.begin(),[](int x,int y){return dfn[x]<dfn[y];});
+list.erase(unique(all(list)),list.end());build(list);int x,y;
+dfs1(1,0);dfs2(1,0,0);for(auto y:t[p]){ans[y.second]=max(ans[y.second],mx[y.first]);}
+for(x=0;x<=(int)vec.size()-1;x++)mk[a[vec[x]]>>6]&=~(1ull<<(a[vec[x]]&63)),g[a[vec[x]]].clear();}
 if(l==r)return;int mid=l+r>>1;vt lidx,ridx;for(auto x:vec){if(x<=mid)lidx.emplace_back(x);
 else ridx.emplace_back(x);}solve(p<<1,l,mid,lidx);solve(p<<1|1,mid+1,r,ridx);} 
 int main(){
@@ -151,5 +146,14 @@ ios::sync_with_stdio(0),cin.tie(0);
 cin>>n>>m>>q;vt idx(m);for(x=1;x<n;x++){int u,v,w;cin>>u>>v;add(u,v);add(v,u);}
 for(x=1;x<=m;x++)cin>>a[x];lca(n);for(x=0;x<m;x++){idx[x]=x+1;}
 sort(all(idx),[&](int x,int y){return dfn[a[x]]<dfn[a[y]];});
-for(x=1;x<=q;x++){cin>>ql[x]>>qr[x]>>u[x];upd(1,1,n,ql[x],qr[x],u[x],x);} 
+for(x=1;x<=q;x++){cin>>ql[x]>>qr[x]>>u[x];upd(1,1,n,ql[x],qr[x],u[x],x);}
 solve(1,1,m,idx);for(x=1;x<=q;x++)printf("%d\n",ans[x]);return 0;}
+// error:
+// 1:
+// 1 5 2 3 4 7 6 8 10
+// 2:
+// 2 3 4 6 8 10
+// 4:
+// 2 6 8 10
+// 8:
+// 6 8 10
