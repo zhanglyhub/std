@@ -1,4 +1,4 @@
-#include<bits/stdc++.h>
+include<bits/stdc++.h>
 #define fs(x) fixed<<setprecision(x)
 // #pragma GCC diagnostic error "-std=c++11"
 // #pragma GCC target("avx")
@@ -64,13 +64,36 @@ template<typename tp1,typename tp2>
 void chkmn(tp1&a,tp2&b){if(a>b)a=b;}
 template<typename tp1>
 void chkabs(tp1&x){if(x<0)x=-x;}
-namespace fastio{
-char buf[N+10],*p1,*p2,c;
+namespace fast_io{
+    char buf[N+10],*p1,*p2,c;
 #define gc (p1==p2&&(p2=(p1=buf)+fread(buf,1,N,stdin),p1==p2))?EOF:*p1++
-template<typename tp>
-void read(tp&x){int f=0;for(c=gc;c<48;c=gc)f^=c=='-';
-for(x=0;c>47;x=(x<<1)+(x<<3)+(48^c),c=gc);if(f)x=-x;}    
-}using fastio::read;
+template<typename _Tp>
+    void read(_Tp &x){
+        int f=0;for(c=gc;c<48;c=gc)f^=c=='-';
+        for(x=0;c>47;x=(x<<1)+(x<<3)+(48^c),c=gc);
+        if(f)x=-x;
+    }
+template<typename _Tp,typename..._tps>
+    void read(_Tp &x,_tps&...y){read(x),read(y...);}
+    char ob[N+100],stk[505];int tp,ot;
+    void fls(){fwrite(ob,1,ot,stdout),ot=0;}
+    int cntt;
+template<typename _Tp>
+    static inline void write(_Tp x,char c){
+        if(!cntt)atexit(fls),cntt=1;
+        while(x>9)stk[++tp]=48^(x%10),x/=10;
+        for(ob[ot++]=48^x;tp;ob[ot++]=stk[tp--]);
+        ob[ot++]=c;if(ot>N)fls();
+    }
+template<typename tq>
+    void rd(tq &x){ 
+	int f=1;x=0;char s=getchar();
+	while(s<'0'||s>'9'){if(s=='-')f=-1;s=getchar();}
+	while(s>='0'&&s<='9'){x=x*10+s-'0';s=getchar();}
+	x*=f;
+    }
+}using fast_io::read;
+using fast_io::write;
 mt19937_64 rg(random_device{}());
 using vt=vector<int>;
 using vl=vector<ll>;
@@ -110,7 +133,7 @@ using ui64=uint64_t;
 // bd.push_back(t[p][y++]);}bd.erase(all(bd),bd.end());build(bd);dfs1(1,0);dfs2(1,0,0);
 // for(auto u:t[p])res[u]=max(res[u],mx[u]);for(x=l;x<=r;x++)mk1[val[x]>>6]~=1ull<<(val[x]&63);for(auto u:bd)g[u].clear();
 // if(l==r)return;int mid=l+r>>1;solve(p<<1,l,mid);solve(p<<1|1,mid+1,r);}}
-int h[N],to[N],nxt[N],tot,a[N],dfn[N],seq[N],timer,mk[N],ck[N],mx[N],dept[N],fa[N],f[N][__lg(N)+2];vector<pii>t[N];
+int h[N],to[N<<1],nxt[N<<1],tot,a[N],dfn[N],seq[N],timer,mk[N],ck[N],mx[N],dept[N],fa[N],f[N][__lg(N)+2];vector<pii>t[N<<2];
 int ans[N];vt g[N];struct T{int l,r,u;}b[N];
 int mn(int x,int y){return dept[x]<dept[y]?x:y;}
 void add(int x,int y){to[++tot]=y;nxt[tot]=h[x];h[x]=tot;}
@@ -124,39 +147,31 @@ int k=__lg(b-a+1);return fa[mn(f[a][k],f[b-(1<<k)+1][k])];}
 void upd(int p,int l,int r,int ql,int qr,int u,int id){if(ql<=l&&r<=qr){
 t[p].emplace_back(mkp(u,id));return;}int mid=l+r>>1;if(ql<=mid)upd(p<<1,l,mid,ql,qr,u,id);
 if(qr>mid)upd(p<<1|1,mid+1,r,ql,qr,u,id);}void ad(int x,int y){g[x].emplace_back(y);}
-void build(vt&val){static int s[N];int p=0;s[++p]=1;for(auto x:val){if(x==1)continue;int lk=ask(s[p],x);
-if(lk!=s[p]){while(p-1&&dept[s[p-1]]>dept[lk])ad(s[p-1],s[p]),p--;
-if(dept[s[p-1]]<dept[lk])ad(lk,s[p]),s[p]=lk;else ad(lk,s[p--]);}s[++p]=x;}
-while(p-1)ad(s[p-1],s[p]),p--;}
+void clr(int x){for(auto y:g[x])clr(y);g[x].clear();mx[x]=mk[x]=0;}
+void build(vt&val){static int s[N];int p=0;s[++p]=1;for(auto x:val){
+if(x==1)continue;int lk=ask(s[p],x);if(lk!=s[p]){while(p-1&&dept[s[p-1]]>dept[lk])ad(s[p-1],s[p]),p--;
+if(dept[s[p-1]]<dept[lk])ad(lk,s[p]),s[p]=lk;else ad(lk,s[p--]);}s[++p]=x;}while(p-1)ad(s[p-1],s[p]),p--;}
 void dfs1(int x,int pa){for(auto y:g[x]){if(y==pa)continue;dfs1(y,x);mk[x]+=mk[y];}}
-void dfs2(int x,int pa){
-    for(auto y:g[x]){
-        if(y==pa)continue;
-        mx[y]=mx[x];
-        if(mk[y]<mk[x])
-        mx[y]=max(mx[y],x);
-        dfs2(y,x);
-}
-}
+void dfs2(int x,int pa){for(auto y:g[x]){if(y==pa)continue;
+mx[y]=mx[x];if(mk[y]<mk[x])mx[y]=max(mx[y],x);dfs2(y,x);}}
 void solve(int p,int l,int r,const vt&vec,const int&n){if(!vec.empty()&&!t[p].empty()){
-int x,y;for(auto x:t[p])mx[x.first]=x.first;for(auto x:vec)mk[a[x]]=1;
-vt la,lb,lc;for(auto x:vec)la.emplace_back(a[x]);for(auto x:t[p])lb.emplace_back(x.first);
-vt list(int(la.size()+lb.size()));merge(all(la),all(lb),list.begin(),[](int x,int y){return dfn[x]<dfn[y];});
-list.erase(unique(all(list)),list.end());build(list);
-// cerr<<p<<' '<<t[p].size()<<":"<<endl;for(auto x:t[p])cerr<<x.first<<' '<<x.second<<endl;
-// dfs1(1,0);dfs2(1,0);for(x=1;x<=15;x++)cerr<<mk[x]<<' ';cerr<<'\n';
-for(auto x:list)cerr<<x<<' ';cerr<<endl;
+int x,y;for(auto x:vec)mk[a[x]]=1;vt la,lb,lc;for(auto x:vec)la.emplace_back(a[x]);
+for(auto x:t[p])lb.emplace_back(x.first);vt list;list.resize(la.size()+lb.size());
+sort(all(lb),[&](int x,int y){return dfn[x]<dfn[y];});
+merge(all(la),all(lb),list.begin(),[](int x,int y){return dfn[x]<dfn[y];});
+sort(all(list),[&](int x,int y){return dfn[x]<dfn[y];});
+list.erase(unique(all(list)),list.end());build(list);dfs1(1,0);dfs2(1,0);
 for(auto y:t[p]){ans[y.second]=max(ans[y.second],mx[y.first]);}
-for(auto x:t[p])if(mk[x.first])ans[x.second]=max(ans[x.second],x.first);for(x=0;x<=n;x++)g[x].clear(),mk[x]=0,mx[x]=0;}
+for(auto x:t[p])if(mk[x.first])ans[x.second]=max(ans[x.second],x.first);clr(1);}
 if(l==r)return;int mid=l+r>>1;vt lidx,ridx;for(auto x:vec){if(x<=mid)lidx.emplace_back(x);
 else ridx.emplace_back(x);}solve(p<<1,l,mid,lidx,n);solve(p<<1|1,mid+1,r,ridx,n);} 
 int main(){
 int i,j,k,x,y,z,q,c,m,n;
-ios::sync_with_stdio(0),cin.tie(0);
-cin>>n>>m>>q;vt idx(m);for(x=1;x<n;x++){int u,v,w;cin>>u>>v;add(u,v);add(v,u);}
-for(x=1;x<=m;x++)cin>>a[x];lca(n);for(x=0;x<m;x++){idx[x]=x+1;}
+// ios::sync_with_stdio(0),cin.tie(0);
+scanf("%d%d%d",&n,&m,&q);vt idx(m);for(x=1;x<n;x++){int u,v,w;cin>>u>>v;add(u,v);add(v,u);}
+for(x=1;x<=m;x++)scanf("%d",&a[x]);lca(n);for(x=0;x<m;x++){idx[x]=x+1;}
 sort(all(idx),[&](int x,int y){return dfn[a[x]]<dfn[a[y]];});
-for(x=1;x<=q;x++){cin>>b[x].l>>b[x].r>>b[x].u;}sort(b+1,b+q+1,[&](T x,T y){return x.u<y.u;});
+for(x=1;x<=q;x++){scanf("%d%d%d",&b[x].l,&b[x].r,&b[x].u);}
 for(x=1;x<=q;x++)upd(1,1,m,b[x].l,b[x].r,b[x].u,x);solve(1,1,m,idx,n);
 for(x=1;x<=q;x++)printf("%d\n",ans[x]);return 0;}
 // 1 5 2 3 4 7 6 8 10
