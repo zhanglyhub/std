@@ -111,7 +111,7 @@ using ui64=uint64_t;
 // for(auto u:t[p])res[u]=max(res[u],mx[u]);for(x=l;x<=r;x++)mk1[val[x]>>6]~=1ull<<(val[x]&63);for(auto u:bd)g[u].clear();
 // if(l==r)return;int mid=l+r>>1;solve(p<<1,l,mid);solve(p<<1|1,mid+1,r);}}
 int h[N],to[N],nxt[N],tot,a[N],dfn[N],seq[N],timer,mk[N],ck[N],mx[N],dept[N],fa[N],f[N][__lg(N)+2];vector<pii>t[N];
-int ql[N],qr[N],u[N],ans[N];vt g[N];
+int ans[N];vt g[N];struct T{int l,r,u;}b[N];
 int mn(int x,int y){return dept[x]<dept[y]?x:y;}
 void add(int x,int y){to[++tot]=y;nxt[tot]=h[x];h[x]=tot;}
 void dfs(int x,int pa,int d){dfn[x]=++timer;seq[timer]=x;dept[x]=d;fa[x]=pa;
@@ -128,128 +128,56 @@ void build(vt&val){static int s[N];int p=0;s[++p]=1;for(auto x:val){if(x==1)cont
 if(lk!=s[p]){while(p-1&&dept[s[p-1]]>dept[lk])ad(s[p-1],s[p]),p--;
 if(dept[s[p-1]]<dept[lk])ad(lk,s[p]),s[p]=lk;else ad(lk,s[p--]);}s[++p]=x;}
 while(p-1)ad(s[p-1],s[p]),p--;}
-void dfs1(int x,int pa){for(auto y:g[x]){if(y==pa)continue;dfs1(y,x);mk[x]|=mk[y];}}
-void dfs2(int x,int pa,int bst){int bst1=bst;if(mk[x]){bst1=max(bst1,max(bst,x));}
-mx[x]=bst1;for(auto y:g[x]){if(y==pa)continue;dfs2(y,x,bst1);}}
+void dfs1(int x,int pa){for(auto y:g[x]){if(y==pa)continue;dfs1(y,x);mk[x]+=mk[y];}}
+void dfs2(int x,int pa){
+    for(auto y:g[x]){
+        if(y==pa)continue;
+        mx[y]=mx[x];
+        if(mk[y]<mk[x])
+        mx[y]=max(mx[y],x);
+        dfs2(y,x);
+}
+}
 void solve(int p,int l,int r,const vt&vec,const int&n){if(!vec.empty()&&!t[p].empty()){
-int x,y;for(x=0;x<=t[p].size()-1;x++)mk[t[p][x].first]=1;
+int x,y;for(auto x:t[p])mx[x.first]=x.first;for(auto x:vec)mk[a[x]]=1;
 vt la,lb,lc;for(auto x:vec)la.emplace_back(a[x]);for(auto x:t[p])lb.emplace_back(x.first);
 vt list(int(la.size()+lb.size()));merge(all(la),all(lb),list.begin(),[](int x,int y){return dfn[x]<dfn[y];});
 list.erase(unique(all(list)),list.end());build(list);
-cerr<<p<<' '<<t[p].size()<<":"<<endl;for(auto x:t[p])cerr<<x.first<<' ';cerr<<endl;
-for(auto x:t[p])cerr<<x.second<<' ';cerr<<endl;
-dfs1(1,0);dfs2(1,0,0);for(auto y:t[p]){ans[y.second]=max(ans[y.second],mx[y.first]);}
-for(x=0;x<=n;x++)g[x].clear(),mk[x]=0;for(x=0;x<=t[p].size()-1;x++)mk[t[p][x].first]=0;}
+// cerr<<p<<' '<<t[p].size()<<":"<<endl;for(auto x:t[p])cerr<<x.first<<' '<<x.second<<endl;
+// dfs1(1,0);dfs2(1,0);for(x=1;x<=15;x++)cerr<<mk[x]<<' ';cerr<<'\n';
+for(auto x:list)cerr<<x<<' ';cerr<<endl;
+for(auto y:t[p]){ans[y.second]=max(ans[y.second],mx[y.first]);}
+for(auto x:t[p])if(mk[x.first])ans[x.second]=max(ans[x.second],x.first);for(x=0;x<=n;x++)g[x].clear(),mk[x]=0,mx[x]=0;}
 if(l==r)return;int mid=l+r>>1;vt lidx,ridx;for(auto x:vec){if(x<=mid)lidx.emplace_back(x);
 else ridx.emplace_back(x);}solve(p<<1,l,mid,lidx,n);solve(p<<1|1,mid+1,r,ridx,n);} 
 int main(){
-int i,j,k,x,y,z,T,q,c,m,n;
+int i,j,k,x,y,z,q,c,m,n;
 ios::sync_with_stdio(0),cin.tie(0);
 cin>>n>>m>>q;vt idx(m);for(x=1;x<n;x++){int u,v,w;cin>>u>>v;add(u,v);add(v,u);}
 for(x=1;x<=m;x++)cin>>a[x];lca(n);for(x=0;x<m;x++){idx[x]=x+1;}
 sort(all(idx),[&](int x,int y){return dfn[a[x]]<dfn[a[y]];});
-for(x=1;x<=q;x++){cin>>ql[x]>>qr[x]>>u[x];upd(1,1,n,ql[x],qr[x],u[x],x);}
-solve(1,1,m,idx,n);
+for(x=1;x<=q;x++){cin>>b[x].l>>b[x].r>>b[x].u;}sort(b+1,b+q+1,[&](T x,T y){return x.u<y.u;});
+for(x=1;x<=q;x++)upd(1,1,m,b[x].l,b[x].r,b[x].u,x);solve(1,1,m,idx,n);
 for(x=1;x<=q;x++)printf("%d\n",ans[x]);return 0;}
-// contect: ceng 
-// 1 1:
 // 1 5 2 3 4 7 6 8 10
-// 2 1:
-// 2 3 4 6 8 10
-// 4 2:
-// 2 6 8 10
-// 8 1:
+// 2 4 6 8 10
 // 6 8 10
-// 16 3:
 // 5 9 10
-// 17 1:
 // 8 10
-// 9 1:
 // 6 10
-// 5 1:
 // 2 3 4 10
-// 10 1:
-// 3 4 8
-// 11 5:
+// 3 4
+// 4 8
 // 1 2 3 5
-// 3 2:
-// 1 5 4 7 6 8 10
-// 6 1:
+// 1 2 3 5 8
+// 1 5 4 7 6 10
+// 1 5 7 8
 // 1 5 7
-// 12 1:
-// 5 3 7
-// 24 2:
-// 5 2 5
-// 25 1:
-// 7
-// 13 2:
-// 1 4 7
-// 7 3:
-// 4 7 9 6
-// 14 1:
-// 4 7 6
-// real 0.03
-// user 0.01
-// sys 0.02
-// mem 102240 KB
-
-
-
-// 1 1:
-// 1
-// 2
-// 2 1:
-// 4
-// 8
-// 4 2:
-// 2 8
-// 4 15
-// 8 1:
-// 6
-// 12
-// 16 3:
-// 5 9 10
-// 9 17 20
-// 17 1:
-// 10
-// 19
-// 9 1:
-// 10
-// 19
-// 5 1:
-// 10
-// 19
-// 10 1:
-// 8
-// 15
-// 11 5:
-// 1 2 3 3 5
-// 1 3 5 6 10
-// 3 2:
-// 8 10
-// 16 19
-// 6 1:
-// 1
-// 1
-// 12 1:
-// 3
-// 6
-// 24 2:
-// 2 5
-// 3 10
-// 25 1:
-// 7
-// 14
-// 13 2:
+// 5 3
 // 4 7
-// 7 14
-// 7 3:
-// 4 7 9
-// 7 13 18
-// 14 1:
-// 7
-// 14
-// real 0.05
-// user 0.01
-// sys 0.01
-// mem 102080 KB
+// 1 4 7 9
+// 4 7 6
+// 4 6 8
+// 9 4
+// 6
+// 7 6
