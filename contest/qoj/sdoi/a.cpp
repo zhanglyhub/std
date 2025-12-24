@@ -79,61 +79,32 @@ using ld=long double;
 using LL=__int128_t;
 using ui64=uint64_t; 
 using ui32=uint32_t;
-inline int decode(int x, long long lastans) {    
-    return x ^ (lastans & 0x7fffffff);
-}
-// const int MX=4e5+5;
-// struct P{int x,y;};struct T{vector<P>v1,v2,v3;}t[MX<<1];
-// P operator-(P a,P b){return {a.x-b.x,a.y-b.y};}
-// int xj(P a,P b){return a.x*b.y-b.x*a.y;}
-// int dot(P a,P b){return a.x*b.x+a.y*b.y;}
-// void build(vector<P>&pa){if(pa.empty())return;static int s[N];int p=0,x;s[++p]=0;
-// for(x=1;x<pa.size()-1;x++){int c=xj(pa[x]-pa[s[p]],pa[x+1]-pa[x]);
-// while(c<0&&p>=2)p--;s[++p]=x;vector<P>tmp;for(x=1;x<=p;x++)
-// tmp.push_back(pa[s[x]]);pa=tmp;}}
-// void upd(int p,int l,int r,int idx,int x,int y){if(l==r){
-// t[p].v1.push_back({x,y});t[p].v2.push_back({x,y});t[p].v3.push_back({x,y});return;}int mid=l+r>>1;
-// if(idx<=mid)upd(p<<1,l,mid,idx,x,y);if(idx>mid)upd(p<<1|1,mid+1,r,idx,x,y);if(idx==r){
-// t[p].v1.resize(t[p<<1].v1.size()+t[p<<1|1].v1.size());
-// merge(all(t[p<<1].v1),all(t[p<<1|1].v1),t[p].v1.begin(),[&](P a,P b){if(a.x!=b.x)return a.x<b.x;return a.y<b.y;});
-// t[p].v2.clear();t[p].v3.clear();build(t[p].v1);}}
-// int askhull(vector<P>&pa,int x,int y){int l=0,r=pa.size()-1,ans=0;  
-// while(l<=r){int mid=l+r>>1;int v=dot(pa[mid],{x,y});if(v>ans)ans=v,l=mid+1;
-// else r=mid-1;}return ans;}
-// int ask(int p,int l,int r,int ql,int qr,int x,int y){
-// if(ql<=l&&r<=qr){return askhull(t[p].v1,x,y);}int mid=l+r>>1;int ans=0;
-// if(ql<=mid)ans=max(ans,ask(p<<1,l,mid,ql,qr,x,y));
-// if(qr>mid)ans=max(ans,ask(p<<1|1,mid+1,r,ql,qr,x,r));return ans;}
-//reset maintain to up and down
-const int MX=500000;
 #define int long long
-struct P{ll x,y;};struct T{vector<P>v1,v2,v3;}t[MX<<1];
-int xj(P a,P b){return a.x*b.y-b.x*a.y;}
-int dot(P a,P b){return a.x*b.x+a.y*b.y;}
-P operator-(P a,P b){return {a.x-b.x,a.y-b.y};}
-void build(vector<P>&pa,vector<P>&s,int ck){s.clear();
-for(auto p:pa){while((int)s.size()>=2){int v=xj(s.back()-s[s.size()-2],p-s.back());
-if(ck){if(v>=0)s.pop_back();else break;}else{if(v<=0)s.pop_back();else break;}}
-s.push_back(p);}}
-void upd(int p,int l,int r,int idx,int x,int y){
-if(l==r){t[p].v1.push_back({x,y});t[p].v2.push_back({x,y});t[p].v3.push_back({x,y});return;}
-int mid=l+r>>1;if(idx<=mid)upd(p<<1,l,mid,idx,x,y);if(idx>mid)upd(p<<1|1,mid+1,r,idx,x,y);
-if(idx==r){t[p].v1.resize(t[p<<1].v1.size()+t[p<<1|1].v1.size());
-merge(all(t[p<<1].v1),all(t[p<<1|1].v1),t[p].v1.begin(),[&](P a,P b){
-if(a.x!=b.x)return a.x<b.x;return a.y<b.y;});build(t[p].v1,t[p].v2,1);build(t[p].v1,t[p].v3,0);}}
-int hull(vector<P>&pa,int x,int y){int l=0,r=pa.size()-1,ans=LLONG_MIN;while(l<r){
-int mid=l+r>>1;if(dot({x,y},pa[mid])<dot({x,y},pa[mid+1]))l=mid+1;else r=mid;}
-return dot({x,y},pa[l]);}
-int ask(int p,int l,int r,int ql,int qr,int x,int y){
-if(ql<=l&&r<=qr)if(y>=0)return hull(t[p].v2,x,y);else return hull(t[p].v3,x,y);
-int ans=LLONG_MIN;int mid=l+r>>1;
-if(ql<=mid)ans=max(ans,ask(p<<1,l,mid,ql,qr,x,y));
-if(qr>mid)ans=max(ans,ask(p<<1|1,mid+1,r,ql,qr,x,y));return ans;}
+const int inf=1e9;
+int a[N],b[N],c[N],tot=1,h[N],to[N],nxt[N],val[N],dp[N],p[N];
+void add(int x,int y,int w){to[++tot]=y;nxt[tot]=h[x];h[x]=tot;val[tot]=w;
+to[++tot]=x;nxt[tot]=h[y];h[y]=tot;val[tot]=0;}
+namespace flow{int dis[N],cur[N];int bfs(int s,int t){
+int x;for(x=1;x<=t;x++)dis[x]=0;dis[s]=1;queue<int>q;q.push(s);
+while(!q.empty()){x=q.front();q.pop();for(int v=h[x];v;v=nxt[v]){int y=to[v];
+if(val[v]>0&&!dis[y]){dis[y]=dis[x]+1;q.push(y);if(y==t)return 1;}}}return dis[t]!=0;}
+int dfs(int s,int t,int ls){if(s==t||!ls)return ls;int x=0;
+for(int v=h[s];v;v=nxt[v]){cur[s]=v;int y=to[v];if(dis[y]==dis[s]+1&&val[v]>0){
+int fx=dfs(y,t,min(val[v],ls-x));if(fx){val[v^1]+=fx;val[v]-=fx;x+=fx;}
+if(x==ls)break;}}return x;}
+int upd(int s,int t){int ans=0;while(bfs(s,t)){ans+=dfs(s,t,inf);}return ans;}}
 signed main(){
-int i,j,k,x,y,z,q,c,m,n;
+int i,j,k,T,x,y,z,q,m,n;
 ios::sync_with_stdio(0),cin.tie(0);
-char o;cin>>n>>o;int cnt=0;int ans=0;for(x=1;x<=n;x++){
-char op;cin>>op;if(op=='A'){int x1,y1;cin>>x1>>y1;x1=(o!='E'?decode(x1,ans):x1);
-y1=(o!='E'?decode(y1,ans):y1);upd(1,1,n,++cnt,x1,y1);}else{int x1,y1,l,r;cin>>x1>>y1>>l>>r;
-l=(o!='E'?decode(l,ans):l);r=(o!='E'?decode(r,ans):r);x1=(o!='E'?decode(x1,ans):x1);
-y1=(o!='E'?decode(y1,ans):y1);ans=ask(1,1,n,l,r,x1,y1);printf("%lld\n",ans);}}return 0;}
+for(cin>>T;T--;){cin>>n;for(x=1;x<=n;x++)cin>>a[x];
+for(x=1;x<=n;x++)cin>>b[x];for(x=1;x<=n;x++)cin>>c[x];
+for(x=1;x<=n;x++)dp[x]=1;for(x=2;x<=n;x++){for(j=1;j<x;j++)
+if(a[j]<a[x])dp[x]=max(dp[j],0ll)+1;}int mx=-1;for(x=1;x<=n;x++)mx=max(dp[x],mx);
+for(x=1;x<=n;x++)add(x,x+n,b[x]);int s=n<<2,t=s+1;for(x=1;x<=n;x++)if(dp[x]==1)add(s,x,inf);
+for(x=1;x<=n;x++)if(dp[x]==mx)add(x+n,t,inf);for(x=1;x<=n;x++)for(j=1;j<x;j++)
+if(dp[j]==dp[x]-1&&a[j]<a[x])add(j+n,x,inf);int ans=flow::upd(s,t);printf("%lld ",ans);
+for(x=1;x<=n;x++)p[x]=x;sort(p+1,p+n+1,[&](int x,int y){return c[x]<c[y];});
+vl res;for(x=1;x<=n;x++){int u=p[x];if(flow::bfs(u,u+n))continue;
+while(flow::bfs(t,u+n))flow::dfs(t,u+n,inf);while(flow::bfs(u,s))flow::dfs(u,s,inf);
+res.emplace_back(u);}sort(all(res));printf("%lld\n",(ll)res.size());for(x=0;x<(ll)res.size();x++)printf("%lld ",res[x]);printf("\n");
+for(x=0;x<=(n<<2)+2;x++)a[x]=dp[x]=b[x]=c[x]=p[x]=h[x]=to[x]=val[x]=nxt[x]=0;}return 0;}
