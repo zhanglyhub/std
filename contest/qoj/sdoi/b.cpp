@@ -79,36 +79,38 @@ using ld=long double;
 using LL=__int128_t;
 using ui64=uint64_t; 
 using ui32=uint32_t;
-const int inf=1e9;
-int a[N],b[N],c[N],tot=1,h[N],to[N],nxt[N],val[N],dp[N],p[N];
-void add(int x,int y,int w){to[++tot]=y;nxt[tot]=h[x];h[x]=tot;val[tot]=w;
-to[++tot]=x;nxt[tot]=h[y];h[y]=tot;val[tot]=0;}
-namespace flow{int dis[N],cur[N];int bfs(int s,int t){
-int x;for(x=1;x<=t;x++)dis[x]=0;dis[s]=1;queue<int>q;q.push(s);
-while(!q.empty()){x=q.front();q.pop();for(int v=h[x];v;v=nxt[v]){int y=to[v];
-if(val[v]>0&&!dis[y]){dis[y]=dis[x]+1;q.push(y);if(y==t)return 1;}}}return dis[t]!=0;}
-int dfs(int s,int t,int ls){if(s==t||!ls)return ls;int x=0;
-for(int v=h[s];v;v=nxt[v]){cur[s]=v;int y=to[v];if(dis[y]==dis[s]+1&&val[v]>0){
-int fx=dfs(y,t,min(val[v],ls-x));if(fx){val[v^1]+=fx;val[v]-=fx;x+=fx;}
-if(x==ls)break;}}return x;}
-int upd(int s,int t){int ans=0;while(bfs(s,t)){
-memcpy(cur,h,sizeof(h));ans+=dfs(s,t,inf);}return ans;}}
-int main(){
+#define int long long
+const int MX=1e5+5;int mk[MX];
+struct P{int x,y;}a[MX],b[MX];P b1[MX],b2[MX];
+P operator-(P a,P b){return {a.x-b.x,a.y-b.y};}
+P operator+(P a,P b){return {a.x+b.x,a.y+b.y};}
+bool operator==(P a,P b){return a.x==b.x&&a.y==b.y;}
+bool operator<(P a,P b){if(a.x!=b.x)return a.x<b.x;return a.y<b.y;}
+int dot(P a,P b){return {a.x*b.x+a.y*b.y};}
+int xj(P a,P b){return a.x*b.y-a.y*b.x;}
+int build(P*a,int n,P*b){int x,p=0;static int vis[MX],s[MX];MST(vis);
+for(x=1;x<=n;x++){while(p>=2){if(xj(a[s[p]]-a[s[p-1]],a[x]-a[s[p]])>=0)vis[s[p--]]=0;
+else break;}vis[s[++p]=x]=1;}int rp=p;for(x=n;x;x--){
+while(rp>p){if(xj(a[s[rp]]-a[s[rp-1]],a[x]-a[s[rp]])>=0)vis[s[rp--]]=0;
+else break;}vis[s[++rp]=x]=1;}int pos=0;while(rp)b[++pos]=a[s[rp--]];
+pos=unique(b+1,b+pos+1)-b-1;return pos;}
+signed main(){
 int i,j,k,T,x,y,z,q,m,n;
 ios::sync_with_stdio(0),cin.tie(0);
-for(cin>>T;T--;){cin>>n;for(x=1;x<=n;x++)cin>>a[x];
-for(x=1;x<=n;x++)cin>>b[x];for(x=1;x<=n;x++)cin>>c[x];
-for(x=1;x<=n;x++)dp[x]=1;for(x=2;x<=n;x++){for(j=1;j<x;j++)
-if(a[j]<a[x])dp[x]=max(dp[j],0)+1;}int mx=-1;for(x=1;x<=n;x++)mx=max(dp[x],mx);
-for(x=1;x<=n;x++)add(x,x+n,b[x]);int s=n<<2,t=s+1;for(x=1;x<=n;x++)if(dp[x]==1)add(s,x,inf);
-for(x=1;x<=n;x++)if(dp[x]==mx)add(x+n,t,inf);for(x=1;x<=n;x++)for(j=1;j<x;j++)
-if(j<x&&dp[j]==dp[x]-1&&a[j]!=a[x])add(j+n,x,inf);
-// for(x=1;x<=t;x++){cerr<<x<<":"<<endl;for(y=h[x];y;y=nxt[y])cerr<<to[y]<<' ';cerr<<endl;}
-int ans=flow::upd(s,t);printf("%d\n",ans);
-for(x=1;x<=n;x++)p[x]=x;sort(p+1,p+n+1,[&](int x,int y){return c[x]<c[y];});
-// //set u->v and v->u to 0 to check if u->v is in min cut collection; we use bfs to check if 
-// //exits paths from u->s || v->t,if is true,we assert u,v must belong to collections ?
-vt res;for(x=1;x<=n;x++){int u=p[x]<<1,v=u^1;cerr<<val[u]<<' ';if(val[u]>0)continue;int p1=to[u],p2=to[v];
-int sv=val[v];val[v]=0;if(flow::bfs(p1,p2)){flow::dfs(p1,p2,1);val[v]=sv-1;val[u]=1;}
-else {res.push_back(p[x]);int w=val[v^1];val[v^1]=val[v]=0;flow::dfs(u,s,w);flow::dfs(v,t,w);}}
-sort(all(res));for(auto x:res)printf("%d ",x);printf("\n");}return 0;}
+cin>>n>>m>>q;for(x=1;x<=n;x++)cin>>a[x].x>>a[x].y;
+for(x=1;x<=m;x++)cin>>b[x].x>>b[x].y,b[x].x=-b[x].x,b[x].y=-b[x].y;
+sort(a+1,a+n+1);sort(b+1,b+m+1);int f1=build(a,n,b1),f2=build(b,m,b2);
+static P ans[N];int p=0,t1,t2;
+for(t1=t2=1;t1<f1&&t2<f2;){ans[++p]=b1[t1]+b2[t2];
+++(xj(b1[t1+1]-b1[t1],b2[t2+1]-b2[t2])>0?t1:t2);}
+if(t1==f1)while(t2<=f2)ans[++p]=b1[t1]+b2[t2++];
+else while(t1<=f1)ans[++p]=b1[t1++]+b2[t2];
+for(x=1;x<=q;x++){int dx,dy;cin>>dx>>dy;int l,r,mid,pos=0;
+if(xj(ans[p]-ans[1],P{dx,dy}-ans[1])>0||(xj(ans[p]-ans[1],P{dx,dy}-ans[1])==0
+&&dot(P{dx,dy}-ans[1],ans[p]-ans[1])>0)){printf("0\n");continue;}
+if(xj(ans[2]-ans[1],P{dx,dy}-ans[1])>0||(xj(ans[2]-ans[1],P{dx,dy}-ans[1])==0
+&&dot(P{dx,dy}-ans[1],ans[2]-ans[1])>0)){printf("0\n");continue;}
+l=2;r=p-1;while(l<=r){int mid=l+r>>1;if(xj(ans[mid+1]-ans[mid],ans[mid]-P{dx,dy})>=0)
+pos=mid,l=mid+1;else r=mid-1;}
+if(xj(ans[pos+1]-ans[pos],P{dx,dy}-ans[pos])>0)printf("1\n");else printf("0\n");}
+return 0;}
