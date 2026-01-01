@@ -302,9 +302,9 @@ using ld=double;
 // if(ql<=l)upd(p<<1,l,mid,ql,qr,x);if(qr>mid)upd(p<<1|1,mid+1,r,ql,qr,x);}
 // void solve(int l,int r,int p,int idx){if(l==r)return;int mid=l+r>>1;solve(p<<1,l,mid);
 // solve(p<<1|1,mid+1,r);if(idx==r){add(p);mg1(p);mg2(p);}}
-const int MX=600005;
-int a[300005],ptr,bk,bks;
-struct P{ll x,y;}pool[300005];
+const int MX=600050;
+int a[300050],ptr,bk,bks;
+struct P{ll x,y;}pool[MX*3];
 bool cmp(const P&a,const P&b){if(a.x!=b.x)return a.x<b.x;return a.y<b.y;}
 P operator+(P a,P b){return {a.x+b.x,a.y+b.y};}
 P operator-(P a,P b){return {a.x-b.x,a.y-b.y};}
@@ -313,8 +313,8 @@ int xj(P a,P b){return a.x*b.y-a.y*b.x;}
 int dot(P a,P b){return a.x*b.x+a.y*b.y;}
 struct hull{int a;int len,mk;hull():a(0),len(0),mk(N){}void init(int x){a=x;len=0;}
 P&operator[](int x){return pool[a+x];}};struct T{hull ls,rs,mx;P sum;}t[MX];
-void add(hull&h,const P&b){int x;for(x=1;x<=h.len;x++)h[x]=h[x]+b;}
-void bh(P a,hull&b){while(b.len>=2&&xj(b[b.len]-b[b.len-1],a-b[b.len])>=0)
+void bh(P a,hull&b){assert(b.len+1<MX);
+while(b.len>=2&&xj(b[b.len]-b[b.len-1],a-b[b.len])>=0)
 b[b.len--]={0,0};b[++b.len]=a;}
 void hb(hull&a,P s,hull&b,hull&c){c.a=ptr;c.len=0;int x,y,k;
 for(x=1,y=1,k=0;x<=a.len&&y<=b.len;){if(cmp(a[x],b[y]+s))
@@ -372,17 +372,17 @@ void build(int p,int l,int r){
     }
 struct H{int L,R,val,id;short op;}U[MX];
 bool cp(H&a,H&b){if(a.val!=b.val)return a.val<b.val;return a.id<b.id;}
-struct G{int ls,rs,mx,sum;G():ls(0),rs(0),mx(0),sum(0){}
-G(int ls,int rs,int mx,int sum):ls(ls),rs(rs),mx(mx),sum(sum){}};
-G mg(G&a,G&b){G res;res.sum=a.sum+b .sum;res.ls=max(a.ls,a.sum+b.ls);
+struct G{ll ls,rs,mx,sum;G():ls(0),rs(0),mx(0),sum(0){}
+G(ll ls,ll rs,ll mx,ll sum):ls(ls),rs(rs),mx(mx),sum(sum){}};
+G mg(G&a,G&b){G res;res.sum=a.sum+b.sum;res.ls=max(a.ls,a.sum+b.ls);
 res.rs=max(b.rs,b.sum+a.rs);res.mx=max({(a.rs+b.ls),a.mx,b.mx});return res;}
-int ask(hull&a,P val){
+ll ask(hull&a,P val){
     int x=min(a.len,a.mk);int res=0;for(;x;x--)if(res<dot(a[x],val))
     a.mk=x,res=dot(a[x],val);
     return res;
 }
-G bf(int l,int r,int val){int x;int mx=0,mx1=0,sum=0,ls=0;for(x=l;x<=r;x++){sum+=a[x]+val;
-mx1=max(a[x]+val,mx1+a[x]+val);mx=max(mx,mx1);ls=max(ls,sum);}int rs=0,rsm=0;for(x=r;x>=l;x--){rsm+=a[x]+val;
+G bf(int l,int r,int val){int x;ll mx=0,mx1=0,sum=0,ls=0;for(x=l;x<=r;x++){sum+=a[x]+val;
+mx1=max(ll(a[x]+val),ll(mx1+a[x]+val));mx=max(mx,mx1);ls=max(ls,sum);}ll rs=0,rsm=0;for(x=r;x>=l;x--){rsm+=a[x]+val;
 rs=max(rs,rsm);}return {ls,rs,mx,sum};}
 G solve(int p,int l,int r,int ql,int qr,int val){
     if(ql<=l&&r<=qr){
@@ -399,22 +399,26 @@ G solve(int p,int l,int r,int ql,int qr,int val){
     if(qr>mid)R=solve(p<<1|1,mid+1,r,ql,qr,val);
     return mg(L,R);
 }
-// void bd(int l,int r){sort(a+l,a+r);for(x=1;x<=n;x++)}
 signed main(){
 int i,j,k,x,y,z,c,n,m;
 // ios::sync_with_stdio(0),cin.tie(0);
 n=read();m=read();for(x=1;x<=n;x++)a[x]=read();
-bk=__lg(n);if(bk==0)bks=bk=1;else bks=n/max(bk,1)+1;
-build(1,1,n);vt res(m+2);
+bk=__lg(n);if(bk==0)bks=bk=1;else bks=n/max(bk,1ll)+1;
+build(1,1,n);vl res(m+2,-1);
 for(x=1;x<=m;x++){U[x].op=read();if(U[x].op==1){U[x].val=read();}
 else U[x].L=read(),U[x].R=read();U[x].val+=U[x-1].val,U[x].id=x;}
 sort(U+1,U+m+1,cp);
 for(x=1;x<=m;x++){if(U[x].op==2){G da=solve(1,1,n,U[x].L,U[x].R,U[x].val);
 res[U[x].id]=max({da.ls,da.rs,da.mx,da.sum});}}
-for(x=1;x<=m;x++)if(U[x].op==2)write(res[x]);fast_io::fls();
+for(x=1;x<=m;x++)if(res[x]!=-1)write(res[x]);fast_io::fls();
 return 0;}
-
 //不想卡了吐了
 
-
-
+//hack:
+// 9 5
+// 4 9 3 5 9 5 10 -4 -2 
+// 1 -8
+// 2 3 9
+// 1 2
+// 2 5 6
+// 1 -10
