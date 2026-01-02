@@ -303,29 +303,29 @@ using ld=double;
 // void solve(int l,int r,int p,int idx){if(l==r)return;int mid=l+r>>1;solve(p<<1,l,mid);
 // solve(p<<1|1,mid+1,r);if(idx==r){add(p);mg1(p);mg2(p);}}
 const int MX=600050;
-int a[300050],ptr,bk,bks;
-struct P{ll x,y;}pool[MX*3];
-bool cmp(const P&a,const P&b){if(a.x!=b.x)return a.x<b.x;return a.y<b.y;}
+ll a[300050];int ptr,bk,bks;
+struct P{ll x,y;}pool[8000005];
+inline bool cmp(const P&a,const P&b){if(a.x!=b.x)return a.x<b.x;return a.y<b.y;}
 P operator+(P a,P b){return {a.x+b.x,a.y+b.y};}
 P operator-(P a,P b){return {a.x-b.x,a.y-b.y};}
 bool operator==(P a,P b){return a.x==b.x&&a.y==b.y;}
-int xj(P a,P b){return a.x*b.y-a.y*b.x;}
-int dot(P a,P b){return a.x*b.x+a.y*b.y;}
-struct hull{int a;int len,mk;hull():a(0),len(0),mk(N){}void init(int x){a=x;len=0;}
-P&operator[](int x){return pool[a+x];}};struct T{hull ls,rs,mx;P sum;}t[MX];
-void bh(P a,hull&b){assert(b.len+1<MX);
+inline ll xj(P a,P b){return a.x*b.y-a.y*b.x;}
+inline ll dot(P a,P b){return a.x*b.x+a.y*b.y;}
+struct hull{int a;int len,mk;hull():a(0),len(0),mk(1){}void init(int x){a=x;len=0;}
+P&operator[](int x){return pool[a+x];}};struct T{hull ls,rs,mx;P sum;}t[10000];
+inline void bh(P a,hull&b){assert(b.len+1<MX);
 while(b.len>=2&&xj(b[b.len]-b[b.len-1],a-b[b.len])>=0)
 b[b.len--]={0,0};b[++b.len]=a;}
-void hb(hull&a,P s,hull&b,hull&c){c.a=ptr;c.len=0;int x,y,k;
+inline void hb(hull&a,P s,hull&b,hull&c){c.a=ptr;c.len=0;int x,y,k;
 for(x=1,y=1,k=0;x<=a.len&&y<=b.len;){if(cmp(a[x],b[y]+s))
 bh(a[x++],c);else bh(b[y++]+s,c);}while(x<=a.len)
 bh(a[x++],c);while(y<=b.len)bh(b[y++]+s,c);ptr+=a.len+b.len;}
-void cal(hull&a,hull&b,hull&c){c.a=ptr;c.len=0;int t,t1,t2;
+inline void cal(hull&a,hull&b,hull&c){c.a=ptr;c.len=0;int t,t1,t2;
 for(t1=1,t2=1;t1<a.len&&t2<b.len;){c[++c.len]=a[t1]+b[t2];
 ++(xj(a[t1+1]-a[t1],b[t2+1]-b[t2])>0?t2:t1);}if(t1==a.len)
 while(t2<=b.len)c[++c.len]=a[t1]+b[t2++];else while(t1<=a.len)
 c[++c.len]=a[t1++]+b[t2];ptr+=c.len;}
-void up(int p){
+inline void up(int p){
     t[p].sum=t[p<<1].sum+t[p<<1|1].sum;
     hb(t[p<<1].ls,t[p<<1].sum,t[p<<1|1].ls,t[p].ls);
     hb(t[p<<1|1].rs,t[p<<1|1].sum,t[p<<1].rs,t[p].rs);
@@ -333,12 +333,12 @@ void up(int p){
     hull tmp2;hb(t[p<<1].mx,P{0,0},t[p<<1|1].mx,tmp2);
     hb(tmp2,P{0,0},tmp1,t[p].mx);
 }
-P bd(int l,int r,hull&ls,hull&rs,hull&mx){
+inline P bd(int l,int r,hull&ls,hull&rs,hull&mx){
     if(l==r){
-        ls.a=ptr++;ls.len++;ls[1]=P{a[l],1};
-        rs.a=ptr++;rs.len++;rs[1]=P{a[l],1};
-        mx.a=ptr++;mx.len++;mx[1]=P{a[l],1};
-        return P{a[l],1};
+        ls.a=ptr++;ls.len++;ls[1]=P{1,a[l]};
+        rs.a=ptr++;rs.len++;rs[1]=P{1,a[l]};
+        mx.a=ptr++;mx.len++;mx[1]=P{1,a[l]};
+        return P{1,a[l]};
     }   
     int mid=l+r>>1;hull ls1,ls2,rs1,rs2,mx1,mx2;P lsm,rsm;
     lsm=bd(l,mid,ls1,rs1,mx1);rsm=bd(mid+1,r,ls2,rs2,mx2);//merge 
@@ -348,10 +348,10 @@ P bd(int l,int r,hull&ls,hull&rs,hull&mx){
     hb(tp,P{0,0},tmp,mx);
     return lsm+rsm;
 }
-void cpy(hull&a,int&p){
+inline void cpy(hull&a,int&p){
 int x;for(x=1;x<=a.len;x++)pool[p+x]=a[x];
 a.a=p;p+=a.len+1;}
-void build(int p,int l,int r){
+inline void build(int p,int l,int r){
     if(r-l+1<=bk){
         int p1=ptr;
         t[p].sum=bd(l,r,t[p].ls,t[p].rs,t[p].mx);
@@ -370,28 +370,28 @@ void build(int p,int l,int r){
         build(p<<1|1,mid+1,r);
         up(p);
     }
-struct H{int L,R,val,id;short op;}U[MX];
-bool cp(H&a,H&b){if(a.val!=b.val)return a.val<b.val;return a.id<b.id;}
+struct H{int L,R;ll val;int id;short op;}U[MX];
+inline bool cp(H&a,H&b){if(a.val!=b.val)return a.val<b.val;return a.id<b.id;}
 struct G{ll ls,rs,mx,sum;G():ls(0),rs(0),mx(0),sum(0){}
 G(ll ls,ll rs,ll mx,ll sum):ls(ls),rs(rs),mx(mx),sum(sum){}};
-G mg(G&a,G&b){G res;res.sum=a.sum+b.sum;res.ls=max(a.ls,a.sum+b.ls);
+inline G mg(G&a,G&b){G res;res.sum=a.sum+b.sum;res.ls=max(a.ls,a.sum+b.ls);
 res.rs=max(b.rs,b.sum+a.rs);res.mx=max({(a.rs+b.ls),a.mx,b.mx});return res;}
-ll ask(hull&a,P val){
-    int x=min(a.len,a.mk);int res=0;for(;x;x--)if(res<dot(a[x],val))
+inline ll ask(hull&a,P val){
+    int x;ll res=0;for(x=a.mk;x<=a.len;x++)if(res<dot(a[x],val))
     a.mk=x,res=dot(a[x],val);
     return res;
 }
-G bf(int l,int r,int val){int x;ll mx=0,mx1=0,sum=0,ls=0;for(x=l;x<=r;x++){sum+=a[x]+val;
+inline G bf(int l,int r,ll val){int x;ll mx=0,mx1=0,sum=0,ls=0;for(x=l;x<=r;x++){sum+=a[x]+val;
 mx1=max(ll(a[x]+val),ll(mx1+a[x]+val));mx=max(mx,mx1);ls=max(ls,sum);}ll rs=0,rsm=0;for(x=r;x>=l;x--){rsm+=a[x]+val;
 rs=max(rs,rsm);}return {ls,rs,mx,sum};}
-G solve(int p,int l,int r,int ql,int qr,int val){
+inline G solve(int p,int l,int r,int ql,int qr,ll val){
     if(ql<=l&&r<=qr){
         if(r-l+1<bk) return bf(l,r,val);
         G res;
-        res.sum=dot(t[p].sum,P{1,val});
-        res.ls=ask(t[p].ls,P{1,val});
-        res.rs=ask(t[p].rs,P{1,val});
-        res.mx=ask(t[p].mx,P{1,val});
+        res.sum=dot(t[p].sum,P{val,1});
+        res.ls=ask(t[p].ls,P{val,1});
+        res.rs=ask(t[p].rs,P{val,1});
+        res.mx=ask(t[p].mx,P{val,1});
         return res;
     }
     int mid=l+r>>1;G L,R;
@@ -403,7 +403,7 @@ signed main(){
 int i,j,k,x,y,z,c,n,m;
 // ios::sync_with_stdio(0),cin.tie(0);
 n=read();m=read();for(x=1;x<=n;x++)a[x]=read();
-bk=__lg(n);if(bk==0)bks=bk=1;else bks=n/max(bk,1ll)+1;
+bk=128;if(bk==0)bks=bk=1;else bks=n/max(bk,1)+1;
 build(1,1,n);vl res(m+2,-1);
 for(x=1;x<=m;x++){U[x].op=read();if(U[x].op==1){U[x].val=read();}
 else U[x].L=read(),U[x].R=read();U[x].val+=U[x-1].val,U[x].id=x;}
@@ -422,3 +422,6 @@ return 0;}
 // 1 2
 // 2 5 6
 // 1 -10
+
+//真的dl 
+//满凸包怎么卡啊
